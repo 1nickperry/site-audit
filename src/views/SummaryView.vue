@@ -1,30 +1,47 @@
 <template>
   <section>
     <h1>Summary</h1>
-    <p class="lede" v-if="job">{{ job.config?.url }} — {{ grouped.overall }}% passed ({{ grouped.totalFail }} of {{ grouped.total }} checks have issues)</p>
+    <p class="lede" v-if="job">
+      <a v-if="job.config?.url" :href="job.config.url" target="_blank" rel="noopener">{{ job.config.url }}</a>
+      — {{ grouped.overall }}% passed ({{ grouped.totalFail }} of {{ grouped.total }} checks have issues)
+    </p>
     <p class="lede" v-else>No crawl loaded. Run one from Config.</p>
 
-    <div v-for="cat in grouped.categories" :key="cat.id" class="card">
-      <h2>
+    <details
+      v-for="cat in grouped.categories"
+      :key="cat.id"
+      class="card accordion"
+      :open="cat.failed > 0"
+    >
+      <summary>
         <img :src="cat.icon" alt="" />
-        {{ cat.label }}
+        <span class="acc-title">{{ cat.label }}</span>
         <span class="muted">{{ cat.percent }}% passed · {{ cat.failed }} / {{ cat.items.length }} failing</span>
-      </h2>
-      <table>
-        <thead><tr><th>Check</th><th>Priority</th><th>Result</th><th>URLs</th></tr></thead>
-        <tbody>
-          <tr v-for="item in cat.items" :key="item.id">
-            <td>
-              <router-link :to="`/report/${job.id}?check=${item.id}`">{{ item.name }}</router-link>
-              <div class="muted">{{ item.subcategory }}</div>
-            </td>
-            <td><span class="pill" :class="item.priority">{{ item.priority }}</span></td>
-            <td><span class="pill" :class="item.pass ? 'pass' : 'fail'">{{ item.pass ? "Pass" : "Fail" }}</span></td>
-            <td>{{ item.rows?.length || 0 }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      </summary>
+
+      <details
+        v-for="item in cat.items"
+        :key="item.id"
+        class="check-acc"
+        :open="!item.pass && item.rows?.length"
+      >
+        <summary>
+          <span class="check-name">{{ item.name }}</span>
+          <span class="pill" :class="item.priority">{{ item.priority }}</span>
+          <span class="pill" :class="item.pass ? 'pass' : 'fail'">{{ item.pass ? "Pass" : "Fail" }}</span>
+          <span class="muted">{{ item.rows?.length || 0 }} URLs</span>
+        </summary>
+        <p class="muted check-meta">{{ item.subcategory }}</p>
+        <ul v-if="item.rows?.length" class="url-list">
+          <li v-for="(row, i) in item.rows" :key="i">
+            <a :href="row.url" target="_blank" rel="noopener" class="url">{{ row.url }}</a>
+            <span v-if="row.cells?.length" class="muted"> — {{ row.cells.join(" · ") }}</span>
+          </li>
+        </ul>
+        <p v-else class="muted">No issue URLs for this check.</p>
+        <router-link class="report-link" :to="`/report/${job.id}?check=${item.id}`">Open report for this check</router-link>
+      </details>
+    </details>
   </section>
 </template>
 

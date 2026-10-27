@@ -38,15 +38,26 @@ export async function fetchCrawl(id) {
 
 export function openEvents(id, onEvent) {
   const es = new EventSource(`/api/crawl/${id}/events`);
+  let closed = false;
+  const close = () => {
+    closed = true;
+    es.close();
+  };
   es.addEventListener("message", (ev) => {
+    if (closed) return;
     try {
-      onEvent(JSON.parse(ev.data));
+      const data = JSON.parse(ev.data);
+      if (data.type === "done" || data.type === "error") close();
+      onEvent(data);
     } catch {
       /* ignore malformed SSE payloads */
     }
   });
   es.onerror = () => {
-    /* server closes the stream when the crawl ends */
+    if (closed) {
+      es.close();
+      return;
+    }
   };
-  return es;
+  return { close, es };
 }

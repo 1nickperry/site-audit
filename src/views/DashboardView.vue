@@ -45,7 +45,7 @@ export default {
   setup() {
     const job = ref(loadJob());
     const log = ref([]);
-    let es;
+    let stream;
 
     const results = computed(() => job.value?.results || []);
     const failCount = computed(() => results.value.filter((r) => !r.pass).length);
@@ -83,30 +83,41 @@ export default {
       saveJob(job.value);
     }
 
+    function addLog(line) {
+      const text = String(line || "").trim();
+      if (!text || /^subscribed\b/i.test(text)) return;
+      if (log.value[log.value.length - 1] === text && /complete|done/i.test(text)) return;
+      log.value.push(text);
+      if (log.value.length > 400) log.value.splice(0, log.value.length - 400);
+    }
+
     onMounted(async () => {
       if (!job.value?.id) return;
       try {
         apply(await fetchCrawl(job.value.id));
       } catch {
-        log.value.push("Could not load crawl");
+        addLog("Could not load crawl");
+        return;
       }
-      es = openEvents(job.value.id, (ev) => {
+      if (job.value.status !== "running") return;
+      stream = openEvents(job.value.id, (ev) => {
         if (ev.type === "page") {
-          log.value.push(`${ev.status || ""} ${ev.url}`);
+          addLog(`${ev.status || ""} ${ev.url}`);
           apply({ crawledPages: ev.crawledPages, crawledUrls: ev.crawledUrls, status: "running" });
         } else if (ev.type === "log") {
-          log.value.push(ev.message);
+          addLog(ev.message);
         } else if (ev.type === "done") {
           apply(ev.job);
-          log.value.push("Crawl complete");
-          es?.close();
+          addLog("Crawl complete");
+          stream?.close();
         } else if (ev.type === "error") {
-          log.value.push(ev.message);
+          addLog(ev.message);
+          stream?.close();
         }
       });
     });
 
-    onUnmounted(() => es?.close());
+    onUnmounted(() => stream?.close());
     return { job, log, failCount, passCount, pct, meters };
   }
 };

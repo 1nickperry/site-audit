@@ -87,9 +87,17 @@ app.post("/api/crawl", (req, res) => {
   };
   jobs.set(id, job);
 
-  const emit = (event) => {
+  const emit = (event, { end } = {}) => {
     const payload = `data: ${JSON.stringify(event)}\n\n`;
-    for (const listener of job.listeners) listener.write(payload);
+    for (const listener of job.listeners) {
+      try {
+        listener.write(payload);
+        if (end) listener.end();
+      } catch {
+        /* listener already closed */
+      }
+    }
+    if (end) job.listeners.clear();
   };
 
   res.json(publicJob(job));
@@ -108,13 +116,13 @@ app.post("/api/crawl", (req, res) => {
       job.results = out.results;
       job.pages = out.pages;
       job.finishedAt = new Date().toISOString();
-      emit({ type: "done", job: publicJob(job) });
+      emit({ type: "done", job: publicJob(job) }, { end: true });
     })
     .catch((err) => {
       job.status = "error";
       job.error = String(err.message || err);
       job.finishedAt = new Date().toISOString();
-      emit({ type: "error", message: job.error });
+      emit({ type: "error", message: job.error }, { end: true });
     });
 });
 
@@ -133,11 +141,11 @@ app.get("/api/crawl/:id/events", (req, res) => {
     connection: "keep-alive"
   });
   res.flushHeaders();
-  job.listeners.add(res);
-  res.write(`data: ${JSON.stringify({ type: "log", message: `subscribed ${job.status}` })}\n\n`);
   if (job.status !== "running") {
     res.write(`data: ${JSON.stringify({ type: "done", job: publicJob(job) })}\n\n`);
+    return res.end();
   }
+  job.listeners.add(res);
   req.on("close", () => job.listeners.delete(res));
 });
 

@@ -11,24 +11,39 @@
       </div>
       <div class="row">
         <div class="field">
-          <label>Max pages</label>
+          <label>
+            Max pages
+            <Tip text="Hard cap on HTML pages the crawler fetches. The run stops when this count is reached, even if more same-site links remain." />
+          </label>
           <input v-model.number="form.maxPages" type="number" min="1" max="10000" />
         </div>
         <div class="field">
-          <label>Depth limit (0 = unlimited)</label>
+          <label>
+            Depth limit (0 = unlimited)
+            <Tip text="How many clicks away from the start URL to follow. 0 means no depth cap. 1 is only the start page plus its direct links." />
+          </label>
           <input v-model.number="form.depthLimit" type="number" min="0" max="50" />
         </div>
         <div class="field">
-          <label>Timeout (ms)</label>
+          <label>
+            Timeout (ms)
+            <Tip text="How long to wait for each HTTP response before treating the URL as a timeout and moving on." />
+          </label>
           <input v-model.number="form.responseTimeout" type="number" min="1000" />
         </div>
         <div class="field">
-          <label>URLs / second</label>
+          <label>
+            URLs / second
+            <Tip text="Request rate limiter. Lower this if the site rate-limits or if you want a gentler crawl. Max is 30." />
+          </label>
           <input v-model.number="form.maxUrlsToCrawlPerSecond" type="number" min="1" max="30" />
         </div>
       </div>
       <div class="field">
-        <label>User agent</label>
+        <label>
+          User agent
+          <Tip text="The User-Agent header sent with each request. Some servers treat unknown bots differently. Keep it identifiable, for example SiteAudit/1.0." />
+        </label>
         <input v-model="form.userAgent" type="text" />
       </div>
     </form>
@@ -43,19 +58,36 @@
     </div>
 
     <div class="card">
-      <h2><img src="/assets/svg/crawl-restrictions.svg" alt="" />Crawl restrictions</h2>
+      <h2>
+        <img src="/assets/svg/crawl-restrictions.svg" alt="" />Crawl restrictions
+        <Tip text="These rules further limit which URLs are fetched. The crawler already stays on the start site (www and the apex host count as the same site) unless you turn on off-site fetches." />
+      </h2>
       <div class="row">
         <div class="field">
-          <label>Inclusion regex</label>
+          <label>
+            Inclusion regex
+            <Tip text="Only enqueue URLs whose full address matches this regular expression. Leave blank to include every same-site page. Example: /products/ matches product URLs only." />
+          </label>
           <input v-model="form.inclusionRegex" type="text" placeholder="optional" />
         </div>
         <div class="field">
-          <label>Exclusion regex</label>
+          <label>
+            Exclusion regex
+            <Tip text="Skip URLs that match this regular expression even when they are on your site. Example: /tag/ or \\.(pdf|zip)$ to ignore tag pages or file downloads." />
+          </label>
           <input v-model="form.exclusionRegex" type="text" placeholder="optional" />
         </div>
       </div>
-      <label><input v-model="form.obeyRobots" type="checkbox" /> Obey robots.txt</label>
-      <label><input v-model="form.checkExternalLinks" type="checkbox" /> Fetch off-site links (affiliate/social). Off = stay on your domain.</label>
+      <label class="check-line">
+        <input v-model="form.obeyRobots" type="checkbox" />
+        Obey robots.txt
+        <Tip text="When on, paths listed as Disallow in the site's robots.txt are not crawled. When off, the crawler still stays on your domain but ignores robots rules. Sitemap hints are not used either way." />
+      </label>
+      <label class="check-line">
+        <input v-model="form.checkExternalLinks" type="checkbox" />
+        Fetch off-site links (affiliate/social). Off = stay on your domain.
+        <Tip text="Leave this off to crawl only the start site. www and the apex host count as the same site. Turn it on only if you want the crawler to request outbound affiliate, social, or partner URLs." />
+      </label>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -67,9 +99,11 @@
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { saveJob, startCrawl } from "../api.js";
+import Tip from "../components/Tip.vue";
 
 export default {
   name: "ConfigView",
+  components: { Tip },
   setup() {
     const router = useRouter();
     const busy = ref(false);

@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           <tr v-for="(row, i) in item.rows" :key="i">
-            <td class="url">{{ row.url }}</td>
+            <td class="url"><a :href="row.url" target="_blank" rel="noopener">{{ row.url }}</a></td>
             <td v-for="(cell, j) in row.cells" :key="j">{{ cell }}</td>
           </tr>
         </tbody>

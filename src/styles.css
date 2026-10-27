@@ -90,7 +90,7 @@ h1 { font-size: 22px; margin: 0 0 8px; font-weight: 500; }
 .card h2 img { width: 20px; height: 20px; }
 
 .field { margin-bottom: 14px; }
-.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.field label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .field input[type="text"],
 .field input[type="number"],
 .field input[type="url"],
@@ -193,3 +193,69 @@ th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: upp
 .error { color: var(--bad); margin: 8px 0; }
 .url { word-break: break-all; }
 .muted { color: var(--muted); }
+
+.field label,
+.check-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.check-line { margin: 8px 0; font-weight: 500; }
+
+.tip-wrap { position: relative; display: inline-flex; }
+.tip-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #edf7ff;
+  color: var(--blue);
+  font: 700 11px/1 Roboto, sans-serif;
+  cursor: help;
+  padding: 0;
+}
+.tip-bubble {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(280px, 70vw);
+  background: #1f2d3d;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+  padding: 10px 12px;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(31, 45, 61, 0.25);
+}
+.tip-wrap:hover .tip-bubble,
+.tip-wrap:focus-within .tip-bubble { display: block; }
+
+.accordion > summary,
+.check-acc > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.accordion > summary::-webkit-details-marker,
+.check-acc > summary::-webkit-details-marker { display: none; }
+.accordion > summary { font-size: 16px; font-weight: 500; }
+.accordion > summary img { width: 20px; height: 20px; }
+.acc-title { font-weight: 500; }
+.check-acc {
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+.check-acc > summary { font-size: 14px; }
+.check-name { font-weight: 500; flex: 1; min-width: 160px; }
+.check-meta { margin: 8px 0; }
+.url-list { margin: 8px 0 0; padding-left: 18px; }
+.url-list li { margin: 4px 0; }
+.report-link { display: inline-block; margin-top: 8px; font-weight: 500; }
