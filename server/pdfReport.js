@@ -36,6 +36,7 @@ export async function buildPdfReport(job) {
     const security = categoryScore(results, "security");
     const url = job?.config?.url || "(unknown site)";
     const generated = new Date().toISOString();
+    const leftMargin = 50;
 
     const doc = new PDFDocument({ margin: 50, size: "LETTER" });
     const chunks = [];
@@ -69,11 +70,13 @@ export async function buildPdfReport(job) {
     const startY = doc.y;
     let currentY = startY;
     const labelWidth = 120;
-    const valueX = doc.x + labelWidth + 10;
+    const valueX = leftMargin + labelWidth + 10;
     
     summaryData.forEach(([label, value]) => {
-      doc.fontSize(10).font("Helvetica-Bold").fillColor("#333").text(label + ":", doc.x, currentY, { width: labelWidth, continued: false });
-      doc.fontSize(10).font("Helvetica").fillColor("black").text(value, valueX, currentY);
+      doc.fontSize(10).font("Helvetica-Bold").fillColor("#333");
+      doc.text(label + ":", leftMargin, currentY, { width: labelWidth, continued: false });
+      doc.fontSize(10).font("Helvetica").fillColor("black");
+      doc.text(value, valueX, currentY, { continued: false });
       currentY += 20;
     });
     
@@ -88,24 +91,26 @@ export async function buildPdfReport(job) {
     const barY = doc.y;
 
     function drawScoreBar(label, score, y) {
-      doc.fontSize(10).font("Helvetica").fillColor("black").text(label, doc.x, y);
+      doc.fontSize(10).font("Helvetica").fillColor("black");
+      doc.text(label, leftMargin, y, { continued: false });
       const barStartY = y + 15;
       
-      doc.rect(doc.x, barStartY, barWidth, barHeight).stroke("#ddd");
+      doc.rect(leftMargin, barStartY, barWidth, barHeight).stroke("#ddd");
       
       const fillWidth = (score / 100) * barWidth;
       let fillColor = "#22c55e";
       if (score < 50) fillColor = "#ef4444";
       else if (score < 80) fillColor = "#f59e0b";
       
-      doc.rect(doc.x, barStartY, fillWidth, barHeight).fill(fillColor);
+      doc.rect(leftMargin, barStartY, fillWidth, barHeight).fill(fillColor);
       
       doc.fontSize(9).font("Helvetica-Bold").fillColor("white");
-      const textX = doc.x + fillWidth - 30;
+      const textX = leftMargin + fillWidth - 30;
       if (fillWidth > 35) {
-        doc.text(`${score}%`, textX > doc.x ? textX : doc.x + 5, barStartY + 5);
+        doc.text(`${score}%`, textX > leftMargin ? textX : leftMargin + 5, barStartY + 5, { continued: false });
       } else {
-        doc.fillColor("black").text(`${score}%`, doc.x + fillWidth + 5, barStartY + 5);
+        doc.fillColor("black");
+        doc.text(`${score}%`, leftMargin + fillWidth + 5, barStartY + 5, { continued: false });
       }
     }
 
