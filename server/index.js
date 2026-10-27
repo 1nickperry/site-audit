@@ -7,6 +7,7 @@ import { DEFAULT_CONFIG } from "./defaults.js";
 import { listChecks } from "./checks.js";
 import { crawl } from "./crawler.js";
 import { mountFixture } from "./fixture.js";
+import { sendJobReport } from "./emailer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -161,6 +162,27 @@ app.post("/api/fix-report", (req, res) => {
     /* disk may be read-only on some hosts */
   }
   res.json({ ok: true, id: record.id });
+});
+
+app.post("/api/jobs/:id/email-results", async (req, res) => {
+  const job = jobs.get(req.params.id);
+  if (!job) return res.status(404).json({ error: "job not found" });
+  if (job.status !== "done") {
+    return res.status(400).json({ error: "job has not finished yet" });
+  }
+  
+  const email = String(req.body?.email || "").trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).json({ error: "valid email is required" });
+  }
+  
+  try {
+    const result = await sendJobReport(job, email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error("Email error:", err);
+    res.status(500).json({ error: err.message || "Failed to send email" });
+  }
 });
 
 app.get("/api/crawl/:id/events", (req, res) => {

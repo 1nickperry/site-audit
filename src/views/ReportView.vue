@@ -9,9 +9,14 @@
         <img src="/assets/svg/download.svg" alt="" width="16" height="16" />
         Create detailed .md report for fix
       </button>
+      <button class="btn" type="button" @click="showEmail = true">
+        <img src="/assets/svg/types-to-check.svg" alt="" width="16" height="16" />
+        Send these results to my email
+      </button>
     </p>
 
     <FixReportDialog v-if="showFix && job" :job="job" @close="showFix = false" />
+    <EmailReportDialog v-if="showEmail && job" :job="job" @close="showEmail = false" />
 
     <div class="card" v-if="job">
       <div class="field">
@@ -56,15 +61,17 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { fetchCrawl, loadJob, saveJob } from "../api.js";
 import FixReportDialog from "../components/FixReportDialog.vue";
+import EmailReportDialog from "../components/EmailReportDialog.vue";
 
 export default {
   name: "ReportView",
-  components: { FixReportDialog },
+  components: { FixReportDialog, EmailReportDialog },
   setup() {
     const route = useRoute();
     const job = ref(loadJob());
     const checkId = ref(route.query.check || "");
     const showFix = ref(false);
+    const showEmail = ref(false);
 
     onMounted(async () => {
       const id = route.params.reportId || job.value?.id;
@@ -90,7 +97,7 @@ export default {
       return results.filter((r) => !r.pass);
     });
 
-    return { job, checkId, selected, visible, showFix };
+    return { job, checkId, selected, visible, showFix, showEmail };
   }
 };
 </script>

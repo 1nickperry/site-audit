@@ -12,9 +12,14 @@
         <img src="/assets/svg/download.svg" alt="" width="16" height="16" />
         Create detailed .md report for fix
       </button>
+      <button class="btn" type="button" @click="showEmail = true">
+        <img src="/assets/svg/types-to-check.svg" alt="" width="16" height="16" />
+        Send these results to my email
+      </button>
     </p>
 
     <FixReportDialog v-if="showFix && job" :job="job" @close="showFix = false" />
+    <EmailReportDialog v-if="showEmail && job" :job="job" @close="showEmail = false" />
 
     <details
       v-for="cat in grouped.categories"
@@ -58,6 +63,7 @@
 import { computed, onMounted, ref } from "vue";
 import { fetchCrawl, loadJob, saveJob } from "../api.js";
 import FixReportDialog from "../components/FixReportDialog.vue";
+import EmailReportDialog from "../components/EmailReportDialog.vue";
 
 const CATS = [
   { id: "SEO", label: "SEO", icon: "/assets/svg/seo.svg" },
@@ -67,10 +73,11 @@ const CATS = [
 
 export default {
   name: "SummaryView",
-  components: { FixReportDialog },
+  components: { FixReportDialog, EmailReportDialog },
   setup() {
     const job = ref(loadJob());
     const showFix = ref(false);
+    const showEmail = ref(false);
 
     onMounted(async () => {
       if (!job.value?.id) return;
@@ -101,7 +108,7 @@ export default {
       };
     });
 
-    return { job, grouped, showFix };
+    return { job, grouped, showFix, showEmail };
   }
 };
 </script>
