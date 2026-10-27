@@ -13,7 +13,6 @@
         Create detailed .md report for fix
       </button>
       <button class="btn" type="button" @click="showEmail = true">
-        <img src="/assets/svg/types-to-check.svg" alt="" width="16" height="16" />
         Send these results to my email
       </button>
     </p>
