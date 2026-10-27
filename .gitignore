@@ -10,3 +10,4 @@ bundle.json
 page.json
 PROMPT.txt
 *.zip
+/output/

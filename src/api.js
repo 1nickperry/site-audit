@@ -49,6 +49,19 @@ export async function registerFixReport(payload) {
   return res.json();
 }
 
+export async function emailJobResults(jobId, email) {
+  const res = await fetch(`/api/jobs/${jobId}/email-results`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || "Could not send email");
+  }
+  return res.json();
+}
+
 export function openEvents(id, onEvent) {
   const es = new EventSource(`/api/crawl/${id}/events`);
   let closed = false;
