@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-server.mjs",
     "prestart": "vite build",
     "start": "node server.js"
   },

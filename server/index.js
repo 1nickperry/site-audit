@@ -1,5 +1,6 @@
 import express from "express";
 import path from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { DEFAULT_CONFIG } from "./defaults.js";
@@ -9,7 +10,9 @@ import { mountFixture } from "./fixture.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const dist = path.join(root, "dist");
+const dist = existsSync(path.join(root, "assets")) && existsSync(path.join(root, "index.html"))
+  ? root
+  : path.join(root, "dist");
 
 const app = express();
 app.disable("x-powered-by");
