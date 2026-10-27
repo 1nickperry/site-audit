@@ -4,6 +4,15 @@
     <p class="lede" v-if="job">Detailed failing URLs for {{ selected?.name || "all checks" }}</p>
     <p class="lede" v-else>No report yet. Start a crawl from Config.</p>
 
+    <p v-if="job?.results?.length" class="toolbar">
+      <button class="btn" type="button" @click="showFix = true">
+        <img src="/assets/svg/download.svg" alt="" width="16" height="16" />
+        Create detailed .md report for fix
+      </button>
+    </p>
+
+    <FixReportDialog v-if="showFix && job" :job="job" @close="showFix = false" />
+
     <div class="card" v-if="job">
       <div class="field">
         <label>Check</label>
@@ -46,13 +55,16 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { fetchCrawl, loadJob, saveJob } from "../api.js";
+import FixReportDialog from "../components/FixReportDialog.vue";
 
 export default {
   name: "ReportView",
+  components: { FixReportDialog },
   setup() {
     const route = useRoute();
     const job = ref(loadJob());
     const checkId = ref(route.query.check || "");
+    const showFix = ref(false);
 
     onMounted(async () => {
       const id = route.params.reportId || job.value?.id;
@@ -78,7 +90,7 @@ export default {
       return results.filter((r) => !r.pass);
     });
 
-    return { job, checkId, selected, visible };
+    return { job, checkId, selected, visible, showFix };
   }
 };
 </script>

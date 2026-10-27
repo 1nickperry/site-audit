@@ -26,6 +26,15 @@
 
     <div class="progress"><span :style="{ width: pct + '%' }"></span></div>
 
+    <p v-if="job?.results?.length" class="toolbar">
+      <button class="btn" type="button" @click="showFix = true">
+        <img src="/assets/svg/download.svg" alt="" width="16" height="16" />
+        Create detailed .md report for fix
+      </button>
+    </p>
+
+    <FixReportDialog v-if="showFix && job" :job="job" @close="showFix = false" />
+
     <div class="card">
       <h2><img src="/assets/svg/uncrawled.svg" alt="" />Live log</h2>
       <div class="log">
@@ -39,12 +48,15 @@
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import { fetchCrawl, loadJob, openEvents, saveJob } from "../api.js";
 import { categoryScore, scoreColor } from "../scores.js";
+import FixReportDialog from "../components/FixReportDialog.vue";
 
 export default {
   name: "DashboardView",
+  components: { FixReportDialog },
   setup() {
     const job = ref(loadJob());
     const log = ref([]);
+    const showFix = ref(false);
     let stream;
 
     const results = computed(() => job.value?.results || []);
@@ -118,7 +130,7 @@ export default {
     });
 
     onUnmounted(() => stream?.close());
-    return { job, log, failCount, passCount, pct, meters };
+    return { job, log, failCount, passCount, pct, meters, showFix };
   }
 };
 </script>

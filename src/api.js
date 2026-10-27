@@ -36,6 +36,19 @@ export async function fetchCrawl(id) {
   return res.json();
 }
 
+export async function registerFixReport(payload) {
+  const res = await fetch("/api/fix-report", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || "Could not save report request");
+  }
+  return res.json();
+}
+
 export function openEvents(id, onEvent) {
   const es = new EventSource(`/api/crawl/${id}/events`);
   let closed = false;

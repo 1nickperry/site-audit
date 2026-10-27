@@ -94,6 +94,7 @@ h1 { font-size: 22px; margin: 0 0 8px; font-weight: 500; }
 .field input[type="text"],
 .field input[type="number"],
 .field input[type="url"],
+.field input[type="email"],
 .field textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -115,9 +116,74 @@ h1 { font-size: 22px; margin: 0 0 8px; font-weight: 500; }
   font: inherit;
   font-weight: 500;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
 }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn.secondary { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+.btn img { width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 6px; }
+.toolbar { margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 45, 61, 0.45);
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.modal { width: min(520px, 100%); margin: 0; max-height: 90vh; overflow: auto; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.prompt-box {
+  background: #1f2d3d;
+  color: #d1dbe5;
+  font: 12px/1.45 ui-monospace, Consolas, monospace;
+  padding: 12px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+.platform-dd { position: relative; }
+.platform-dd-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px 10px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.platform-dd-btn .chevron { margin-left: auto; }
+.platform-dd.open .chevron { transform: rotate(180deg); }
+.platform-dd-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 5;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgba(31, 45, 61, 0.12);
+}
+.platform-dd-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.platform-dd-list li:hover,
+.platform-dd-list li[aria-selected="true"] { background: #edf7ff; }
 
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .stat { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 16px; }

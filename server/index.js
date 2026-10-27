@@ -1,6 +1,6 @@
 import express from "express";
 import path from "node:path";
-import { existsSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import { DEFAULT_CONFIG } from "./defaults.js";
@@ -19,6 +19,7 @@ app.disable("x-powered-by");
 app.use(express.json({ limit: "1mb" }));
 
 const jobs = new Map();
+const fixRequests = [];
 
 function publicJob(job) {
   return {
@@ -130,6 +131,36 @@ app.get("/api/crawl/:id", (req, res) => {
   const job = jobs.get(req.params.id);
   if (!job) return res.status(404).json({ error: "crawl not found" });
   res.json(publicJob(job));
+});
+
+app.post("/api/fix-report", (req, res) => {
+  const email = String(req.body?.email || "").trim();
+  const platform = String(req.body?.platform || "").toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return res.status(400).json({ error: "valid email is required" });
+  }
+  if (!["wordpress", "shopify", "webflow"].includes(platform)) {
+    return res.status(400).json({ error: "platform must be wordpress, shopify, or webflow" });
+  }
+  const record = {
+    id: randomUUID(),
+    email,
+    platform,
+    jobId: req.body?.jobId || null,
+    siteUrl: req.body?.siteUrl || null,
+    failCount: Number(req.body?.failCount) || 0,
+    createdAt: new Date().toISOString()
+  };
+  fixRequests.push(record);
+  if (fixRequests.length > 200) fixRequests.splice(0, fixRequests.length - 200);
+  try {
+    const dir = path.join(root, "data");
+    mkdirSync(dir, { recursive: true });
+    appendFileSync(path.join(dir, "fix-reports.jsonl"), `${JSON.stringify(record)}\n`);
+  } catch {
+    /* disk may be read-only on some hosts */
+  }
+  res.json({ ok: true, id: record.id });
 });
 
 app.get("/api/crawl/:id/events", (req, res) => {

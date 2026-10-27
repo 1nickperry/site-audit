@@ -7,6 +7,15 @@
     </p>
     <p class="lede" v-else>No crawl loaded. Run one from Config.</p>
 
+    <p v-if="job?.results?.length" class="toolbar">
+      <button class="btn" type="button" @click="showFix = true">
+        <img src="/assets/svg/download.svg" alt="" width="16" height="16" />
+        Create detailed .md report for fix
+      </button>
+    </p>
+
+    <FixReportDialog v-if="showFix && job" :job="job" @close="showFix = false" />
+
     <details
       v-for="cat in grouped.categories"
       :key="cat.id"
@@ -48,6 +57,7 @@
 <script>
 import { computed, onMounted, ref } from "vue";
 import { fetchCrawl, loadJob, saveJob } from "../api.js";
+import FixReportDialog from "../components/FixReportDialog.vue";
 
 const CATS = [
   { id: "SEO", label: "SEO", icon: "/assets/svg/seo.svg" },
@@ -57,8 +67,10 @@ const CATS = [
 
 export default {
   name: "SummaryView",
+  components: { FixReportDialog },
   setup() {
     const job = ref(loadJob());
+    const showFix = ref(false);
 
     onMounted(async () => {
       if (!job.value?.id) return;
@@ -89,7 +101,7 @@ export default {
       };
     });
 
-    return { job, grouped };
+    return { job, grouped, showFix };
   }
 };
 </script>
