@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "server.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "prestart": "vite build",
-    "start": "node server/index.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
